@@ -1,0 +1,33 @@
+# Compiled Binaries & Executables
+*.exe
+*.out
+*.o
+*.obj
+*.dll
+*.so
+*.dylib
+
+# Flex & Bison Intermediate Files
+lex.yy.c
+y.tab.c
+y.tab.h
+
+# LaTeX Auxiliary & Temporary Build Files (preserves .pdf & .tex)
+*.aux
+*.log
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Python Cache Files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Editor & OS Metadata
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store
