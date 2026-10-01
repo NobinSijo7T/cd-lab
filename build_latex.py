@@ -48,18 +48,52 @@ def read_file(path):
 experiments = [
     {
         "num": 1,
-        "name": "Lexical Analyzer using LEX",
+        "name": "Design and Implement a Lexical Analyzer using C Language",
         "programs": [
-            ("LEX Specification (lex.l)", "01_Lexical_Analyzer_in_C/lex.l")
+            ("C Program (lexical_analyzer.c)", "01_Lexical_Analyzer_in_C/lexical_analyzer.c")
+        ],
+        "io": """Tokens:
+
+int : Keyword
+main : Identifier
+( : Delimiter
+) : Delimiter
+{ : Delimiter
+int : Keyword
+a : Identifier
+= : Operator
+10 : Constant
+, : Delimiter
+b : Identifier
+= : Operator
+20 : Constant
+; : Delimiter
+int : Keyword
+c : Identifier
+= : Operator
+a : Identifier
++ : Operator
+b : Identifier
+; : Delimiter
+return : Keyword
+c : Identifier
+; : Delimiter
+} : Delimiter"""
+    },
+    {
+        "num": 2,
+        "name": "Implement a Lexical Analyzer using LEX Tool",
+        "programs": [
+            ("LEX Specification (lex.l)", "02_Lexical_Analyzer_using_Lex/lex.l")
         ],
         "io": """enter ip: int a float b
 keyword identifier keyword identifier"""
     },
     {
-        "num": 2,
+        "num": 3,
         "name": "Display Number of Lines, Words, Spaces, and Characters using LEX",
         "programs": [
-            ("LEX Specification (lex.l)", "02_Lexical_Analyzer_using_Lex/lex.l")
+            ("LEX Specification (lines.l)", "03_Count_Lines_Words_Characters/lines.l")
         ],
         "io": """Enter the input:
 Hello world
@@ -71,17 +105,8 @@ The number of words=7
 The number of characters are=40"""
     },
     {
-        "num": 3,
-        "name": "Convert Substring 'abc' to 'ABC' using LEX",
-        "programs": [
-            ("LEX Specification (lines.l)", "03_Count_Lines_Words_Characters/lines.l")
-        ],
-        "io": """Input: hello abc world
-Output: hello ABC world"""
-    },
-    {
         "num": 4,
-        "name": "Replace Substring 'abc' with 'ABC' using LEX",
+        "name": "Convert Substring 'abc' to 'ABC' using LEX",
         "programs": [
             ("LEX Specification (sub.l)", "04_Replace_Substring_abc_to_ABC/sub.l")
         ],
@@ -94,9 +119,9 @@ Output: welcome to ABC lab"""
         "programs": [
             ("LEX Specification (vowels.l)", "05_Count_Vowels_and_Consonants/vowels.l")
         ],
-        "io": """Enter ip: Engineering
-consonent: 6
-vovel: 5"""
+        "io": """Enter string: Engineering
+Vowels: 5
+Consonants: 6"""
     },
     {
         "num": 6,
@@ -109,7 +134,8 @@ vovel: 5"""
 
 Result=14
 
-Entered Arithmetic expression is valid"""
+Entered Arithmetic expression is valid""",
+        "clearpage_output": True
     },
     {
         "num": 7,
@@ -181,30 +207,25 @@ Enter transition:
 
 Equivalent DFA.....
 Transitions of DFA
-
-{q1,}   a   {q1,q2,}    
-
-{q1,}   b   {q1,}   
-
-{q1,q2,}    a   {q1,q2,}    
-
-{q1,q2,}    b   {q1,q3,}    
-
-{q1,q3,}    a   {q1,q2,}    
-
-{q1,q3,}    b   {q1,}   
+{q1,}   a   {q1,q2,}
+{q1,}   b   {q1,}
+{q1,q2,}   a   {q1,q2,}
+{q1,q2,}   b   {q1,q3,}
+{q1,q3,}   a   {q1,q2,}
+{q1,q3,}   b   {q1,}
 
 States of DFA:
-{q1,}   {q1,q2,}    {q1,q3,}    
+{q1,}   {q1,q2,}   {q1,q3,}
 
 Alphabets:
-a   b   
+a   b
 
 Start State:
 q1
 
 Final states:
-{q1,q3,}"""
+{q1,q3,}""",
+        "clearpage_output": True
     },
     {
         "num": 11,
@@ -246,7 +267,8 @@ State 2:
 
 State 3 (Final):
   On symbol 0 -> State 1
-  On symbol 1 -> State 0"""
+  On symbol 1 -> State 0""",
+        "clearpage_output": True
     },
     {
         "num": 12,
@@ -413,10 +435,13 @@ for exp in experiments:
             tex_content.append(code.rstrip())
             tex_content.append("\n\\end{lstlisting}\n\n")
     
-    io_lines = exp["io"].strip().count('\n') + 1
-    needlines = min(8, max(4, io_lines + 2))
-    tex_content.append(f"\\needspace{{{needlines}\\baselineskip}}\n")
-    tex_content.append("\\vspace{0.6em}\n")
+    if exp.get("clearpage_output"):
+        tex_content.append("\\clearpage\n")
+    else:
+        io_lines = exp["io"].strip().count('\n') + 1
+        needlines = min(8, max(4, io_lines + 2))
+        tex_content.append(f"\\needspace{{{needlines}\\baselineskip}}\n")
+        tex_content.append("\\vspace{0.6em}\n")
     tex_content.append("\\noindent\\textbf{\\underline{Output:}}\\par\\vspace{0.4em}\n")
     if "io_latex" in exp:
         tex_content.append(exp["io_latex"].strip() + "\n\n")

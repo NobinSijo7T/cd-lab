@@ -32,21 +32,166 @@
 }
 
 \begin{document}
-\noindent\textbf{\large Program Name:} Lexical Analyzer using LEX\par\vspace{0.6em}
+\noindent\textbf{\large Program Name:} Design and Implement a Lexical Analyzer using C Language\par\vspace{0.6em}
+\noindent\textbf{\large Program:}\par\vspace{0.3em}
+\begin{lstlisting}
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+int isKeyword(char word[])
+{
+    char keywords[][10] = {
+        "int", "float", "char", "double",
+        "if", "else", "for", "while",
+        "return", "void"
+    };
+
+    int i;
+
+    for (i = 0; i < 10; i++)
+    {
+        if (strcmp(word, keywords[i]) == 0)
+            return 1;
+    }
+
+    return 0;
+}
+
+int main()
+{
+    FILE *fp;
+    char ch;
+    char word[30];
+    int i = 0;
+
+    fp = fopen("sample_input.c", "r");
+
+    if (fp == NULL)
+    {
+        printf("File not found\n");
+        return 1;
+    }
+
+    printf("Tokens:\n\n");
+
+    while ((ch = fgetc(fp)) != EOF)
+    {
+        /* Identifier, keyword or constant */
+        if (isalnum(ch) || ch == '_')
+        {
+            word[i] = ch;
+            i++;
+        }
+        else
+        {
+            if (i != 0)
+            {
+                word[i] = '\0';
+
+                if (isKeyword(word))
+                    printf("%s : Keyword\n", word);
+                else if (isdigit(word[0]))
+                    printf("%s : Constant\n", word);
+                else
+                    printf("%s : Identifier\n", word);
+
+                i = 0;
+            }
+
+            /* Operators */
+            if (ch == '+' || ch == '-' || ch == '*' ||
+                ch == '/' || ch == '%' || ch == '=')
+            {
+                printf("%c : Operator\n", ch);
+            }
+
+            /* Delimiters */
+            else if (ch == ';' || ch == ',' ||
+                     ch == '(' || ch == ')' ||
+                     ch == '{' || ch == '}')
+            {
+                printf("%c : Delimiter\n", ch);
+            }
+        }
+    }
+
+    /* Process last word */
+    if (i != 0)
+    {
+        word[i] = '\0';
+
+        if (isKeyword(word))
+            printf("%s : Keyword\n", word);
+        else if (isdigit(word[0]))
+            printf("%s : Constant\n", word);
+        else
+            printf("%s : Identifier\n", word);
+    }
+
+    fclose(fp);
+
+    return 0;
+}
+\end{lstlisting}
+
+\needspace{8\baselineskip}
+\vspace{0.6em}
+\noindent\textbf{\underline{Output:}}\par\vspace{0.4em}
+\begin{lstlisting}
+Tokens:
+
+int : Keyword
+main : Identifier
+( : Delimiter
+) : Delimiter
+{ : Delimiter
+int : Keyword
+a : Identifier
+= : Operator
+10 : Constant
+, : Delimiter
+b : Identifier
+= : Operator
+20 : Constant
+; : Delimiter
+int : Keyword
+c : Identifier
+= : Operator
+a : Identifier
++ : Operator
+b : Identifier
+; : Delimiter
+return : Keyword
+c : Identifier
+; : Delimiter
+} : Delimiter
+\end{lstlisting}
+
+\clearpage
+\noindent\textbf{\large Program Name:} Implement a Lexical Analyzer using LEX Tool\par\vspace{0.6em}
 \noindent\textbf{\large Program:}\par\vspace{0.3em}
 \begin{lstlisting}
 %{
 #include <stdio.h>
 %}
+
 %%
-int|float|for|if|else|while {printf("keyword");}
-[a-zA-Z][a-zA-Z0-9]* {printf("identifier");}
+int|float|for|if|else|while { printf("keyword "); }
+[a-zA-Z][a-zA-Z0-9]*        { printf("identifier "); }
+[0-9]+                      { printf("number "); }
+[+\-*/=]                    { printf("operator "); }
+[ \t\n]+                    { /* skip whitespace */ }
+.                           { /* skip other characters */ }
 %%
-int main(){
-    printf("enter ip");
+
+int main() {
+    printf("enter ip: ");
     yylex();
+    return 0;
 }
-int yywrap(){
+
+int yywrap() {
     return 1;
 }
 \end{lstlisting}
@@ -63,31 +208,30 @@ keyword identifier keyword identifier
 \noindent\textbf{\large Program Name:} Display Number of Lines, Words, Spaces, and Characters using LEX\par\vspace{0.6em}
 \noindent\textbf{\large Program:}\par\vspace{0.3em}
 \begin{lstlisting}
-/*Lex Program to count numbers of lines, words, spaces and characters in a given statement*/
+/* Lex Program to count numbers of lines, words, spaces and characters in a given statement */
 %{
-#include<stdio.h>
-int sc=0,wc=0,lc=0,cc=0;
+#include <stdio.h>
+int sc = 0, wc = 0, lc = 0, cc = 0;
 %}
 
 %%
-[\n] { lc++; cc+=yyleng;}
-[ \t] { sc++; cc+=yyleng;}
-[^\t\n ]+ { wc++; cc+=yyleng;}
+[\n]      { lc++; cc += yyleng; }
+[ \t]     { sc++; cc += yyleng; }
+[^\t\n ]+ { wc++; cc += yyleng; }
 %%
 
-int main(int argc ,char* argv[ ])
-{
-printf("Enter the input:\n");
-yylex();
-printf("The number of lines=%d\n",lc);
-printf("The number of spaces=%d\n",sc);
-printf("The number of words=%d\n",wc);
-printf("The number of characters are=%d\n",cc);
+int main(int argc, char* argv[]) {
+    printf("Enter the input:\n");
+    yylex();
+    printf("The number of lines=%d\n", lc);
+    printf("The number of spaces=%d\n", sc);
+    printf("The number of words=%d\n", wc);
+    printf("The number of characters are=%d\n", cc);
+    return 0;
 }
 
-int yywrap( )
-{
-return 1;
+int yywrap() {
+    return 1;
 }
 \end{lstlisting}
 
@@ -107,37 +251,6 @@ The number of characters are=40
 
 \clearpage
 \noindent\textbf{\large Program Name:} Convert Substring 'abc' to 'ABC' using LEX\par\vspace{0.6em}
-\noindent\textbf{\large Program:}\par\vspace{0.3em}
-\begin{lstlisting}
-%{
-#include <stdio.h>
-%}
-
-%%
-"abc" {printf("ABC");}
-. {putchar(yytext[0]);}
-%%
-
-int main() {
-    yylex();
-    return 0;
-}
-
-int yywrap() {
-    return 1;
-}
-\end{lstlisting}
-
-\needspace{4\baselineskip}
-\vspace{0.6em}
-\noindent\textbf{\underline{Output:}}\par\vspace{0.4em}
-\begin{lstlisting}
-Input: hello abc world
-Output: hello ABC world
-\end{lstlisting}
-
-\clearpage
-\noindent\textbf{\large Program Name:} Replace Substring 'abc' with 'ABC' using LEX\par\vspace{0.6em}
 \noindent\textbf{\large Program:}\par\vspace{0.3em}
 \begin{lstlisting}
 %{
@@ -173,21 +286,27 @@ Output: welcome to ABC lab
 \begin{lstlisting}
 %{
 #include <stdio.h>
-int v=0;
-int c=0;
+int v = 0;
+int c = 0;
 %}
+
 %%
-[aeiouAEIOU] {c++;}
-. {v++;}
+[aeiouAEIOU] { v++; }
+[a-zA-Z]     { c++; }
+[ \t\n]      ;
+.            ;
 %%
+
 int main() {
-printf("Enter ip:");
-yylex();
-printf("consonent: %d", v);
-printf("\nvovel: %d", c);
+    printf("Enter string: ");
+    yylex();
+    printf("Vowels: %d\n", v);
+    printf("Consonants: %d\n", c);
+    return 0;
 }
-int yywrap(){
-return 1;
+
+int yywrap() {
+    return 1;
 }
 \end{lstlisting}
 
@@ -195,9 +314,9 @@ return 1;
 \vspace{0.6em}
 \noindent\textbf{\underline{Output:}}\par\vspace{0.4em}
 \begin{lstlisting}
-Enter ip: Engineering
-consonent: 6
-vovel: 5
+Enter string: Engineering
+Vowels: 5
+Consonants: 6
 \end{lstlisting}
 
 \clearpage
@@ -206,29 +325,28 @@ vovel: 5
 \noindent\textbf{Lexer Specification (prg6.l):}\par\vspace{0.2em}
 \begin{lstlisting}
 %{
-#include<stdio.h>
-#include"y.tab.h"
+#include <stdio.h>
+#include "y.tab.h"
 extern int yylval;
 %}
 
 %%
-[0-9]+ {yylval = atoi(yytext); return NUMBER;}
-[\t];
-[\n] return 0;
-. return yytext[0];
+[0-9]+  { yylval = atoi(yytext); return NUMBER; }
+[ \t]   ;
+[\n]    return 0;
+.       return yytext[0];
 %%
 
-int yywrap()
-{
-return 1;
-}
+int yywrap() { return 1; }
 \end{lstlisting}
 
 \noindent\textbf{YACC Parser Specification (prg6.y):}\par\vspace{0.2em}
 \begin{lstlisting}
 %{
-#include<stdio.h>
-int flag=0;
+#include <stdio.h>
+int flag = 0;
+int yylex(void);
+void yyerror();
 %}
 
 %token NUMBER
@@ -237,35 +355,26 @@ int flag=0;
 %left '(' ')'
 
 %%
-ArithemeticExpression: E{ printf("\nResult=%d\n",$$); return 0; };
-E:E'+'E {$$=$1+$3;}
-|E'-'E {$$=$1-$3;}
-|E'*'E {$$=$1*$3;}
-|E'/'E {$$=$1/$3;}
-|E'%'E {$$=$1%$3;}
-|'('E')' {$$=$2;}
-| NUMBER {$$=$1;}
-;
+ArithmeticExpression: E { printf("\nResult=%d\n", $$); return 0; };
+E: E '+' E { $$ = $1 + $3; } | E '-' E { $$ = $1 - $3; }
+ | E '*' E { $$ = $1 * $3; } | E '/' E { $$ = $1 / $3; }
+ | E '%' E { $$ = $1 % $3; } | '(' E ')' { $$ = $2; }
+ | NUMBER  { $$ = $1; } ;
 %%
 
-void main()
-{
-printf("Enter an arithmetic expression: ");
-
-yyparse();
-if(flag==0)
-printf("\nEntered Arithmetic expression is valid\n\n");
+void main() {
+    printf("Enter an arithmetic expression: ");
+    yyparse();
+    if (flag == 0) printf("\nEntered Arithmetic expression is valid\n\n");
 }
 
-void yyerror()
-{
-printf("\nEntered Arithmetic expression is invalid\n\n");
-flag=1;
+void yyerror() {
+    printf("\nEntered Arithmetic expression is invalid\n\n");
+    flag = 1;
 }
 \end{lstlisting}
 
-\needspace{7\baselineskip}
-\vspace{0.6em}
+\clearpage
 \noindent\textbf{\underline{Output:}}\par\vspace{0.4em}
 \begin{lstlisting}
 Enter an arithmetic expression: (5+3)*2-4/2
@@ -284,12 +393,14 @@ Entered Arithmetic expression is valid
 #include <stdio.h>
 #include "y.tab.h"
 %}
+
 %%
-[a-zA-Z_][a-zA-Z_0-9]* return letter;
-[0-9] return digit;
-. return yytext[0];
-\n return 0;
+[a-zA-Z_] return letter;
+[0-9]     return digit;
+.         return yytext[0];
+\n        return 0;
 %%
+
 int yywrap() {
     return 1;
 }
@@ -761,8 +872,7 @@ void printnewstate(struct node1 state) {
 }
 \end{lstlisting}
 
-\needspace{8\baselineskip}
-\vspace{0.6em}
+\clearpage
 \noindent\textbf{\underline{Output:}}\par\vspace{0.4em}
 \begin{lstlisting}
 Enter No of alphabets and alphabets:
@@ -790,24 +900,18 @@ Enter transition:
 
 Equivalent DFA.....
 Transitions of DFA
-
-{q1,}   a   {q1,q2,}    
-
-{q1,}   b   {q1,}   
-
-{q1,q2,}    a   {q1,q2,}    
-
-{q1,q2,}    b   {q1,q3,}    
-
-{q1,q3,}    a   {q1,q2,}    
-
-{q1,q3,}    b   {q1,}   
+{q1,}   a   {q1,q2,}
+{q1,}   b   {q1,}
+{q1,q2,}   a   {q1,q2,}
+{q1,q2,}   b   {q1,q3,}
+{q1,q3,}   a   {q1,q2,}
+{q1,q3,}   b   {q1,}
 
 States of DFA:
-{q1,}   {q1,q2,}    {q1,q3,}    
+{q1,}   {q1,q2,}   {q1,q3,}
 
 Alphabets:
-a   b   
+a   b
 
 Start State:
 q1
@@ -1082,8 +1186,7 @@ int main()
 }
 \end{lstlisting}
 
-\needspace{8\baselineskip}
-\vspace{0.6em}
+\clearpage
 \noindent\textbf{\underline{Output:}}\par\vspace{0.4em}
 \begin{lstlisting}
 Enter the number of states: 5

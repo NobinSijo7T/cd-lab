@@ -1,26 +1,22 @@
-/*Lex Program to count numbers of lines, words, spaces and characters in a given statement*/
 %{
-#include<stdio.h>
-int sc=0,wc=0,lc=0,cc=0;
+#include <stdio.h>
 %}
 
 %%
-[\n] { lc++; cc+=yyleng;}
-[ \t] { sc++; cc+=yyleng;}
-[^\t\n ]+ { wc++; cc+=yyleng;}
+int|float|for|if|else|while { printf("keyword "); }
+[a-zA-Z][a-zA-Z0-9]*        { printf("identifier "); }
+[0-9]+                      { printf("number "); }
+[+\-*/=]                    { printf("operator "); }
+[ \t\n]+                    { /* skip whitespace */ }
+.                           { /* skip other characters */ }
 %%
 
-int main(int argc ,char* argv[ ])
-{
-printf("Enter the input:\n");
-yylex();
-printf("The number of lines=%d\n",lc);
-printf("The number of spaces=%d\n",sc);
-printf("The number of words=%d\n",wc);
-printf("The number of characters are=%d\n",cc);
+int main() {
+    printf("enter ip: ");
+    yylex();
+    return 0;
 }
 
-int yywrap( )
-{
-return 1;
+int yywrap() {
+    return 1;
 }
