@@ -10,9 +10,7 @@ int isKeyword(char word[])
         "return", "void"
     };
 
-    int i;
-
-    for (i = 0; i < 10; i++)
+    for (int i = 0; i < 10; i++)
     {
         if (strcmp(word, keywords[i]) == 0)
             return 1;
@@ -23,28 +21,17 @@ int isKeyword(char word[])
 
 int main()
 {
-    FILE *fp;
     char ch;
     char word[30];
     int i = 0;
 
-    fp = fopen("sample_input.c", "r");
+    printf("Enter the input string:\n");
 
-    if (fp == NULL)
+    while ((ch = getchar()) != '\n' && ch != EOF)
     {
-        printf("File not found\n");
-        return 1;
-    }
-
-    printf("Tokens:\n\n");
-
-    while ((ch = fgetc(fp)) != EOF)
-    {
-        /* Identifier, keyword or constant */
         if (isalnum(ch) || ch == '_')
         {
-            word[i] = ch;
-            i++;
+            word[i++] = ch;
         }
         else
         {
@@ -62,14 +49,11 @@ int main()
                 i = 0;
             }
 
-            /* Operators */
             if (ch == '+' || ch == '-' || ch == '*' ||
                 ch == '/' || ch == '%' || ch == '=')
             {
                 printf("%c : Operator\n", ch);
             }
-
-            /* Delimiters */
             else if (ch == ';' || ch == ',' ||
                      ch == '(' || ch == ')' ||
                      ch == '{' || ch == '}')
@@ -79,7 +63,6 @@ int main()
         }
     }
 
-    /* Process last word */
     if (i != 0)
     {
         word[i] = '\0';
@@ -91,8 +74,6 @@ int main()
         else
             printf("%s : Identifier\n", word);
     }
-
-    fclose(fp);
 
     return 0;
 }

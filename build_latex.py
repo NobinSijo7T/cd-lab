@@ -8,7 +8,7 @@ tex_content.append(r'''\documentclass[11pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{mathptmx}         % Times New Roman font throughout
-\usepackage[margin=1in]{geometry}
+\usepackage[top=0.75in, bottom=0.75in, left=1in, right=1in]{geometry}
 \usepackage{listings}
 \usepackage{needspace}
 \usepackage{hyperref}
@@ -34,7 +34,8 @@ tex_content.append(r'''\documentclass[11pt,a4paper]{article}
     showstringspaces=false,
     keepspaces=true,
     columns=fullflexible,
-    tabsize=4
+    tabsize=4,
+    lineskip=-0.8pt
 }
 
 \begin{document}
@@ -52,33 +53,16 @@ experiments = [
         "programs": [
             ("C Program (lexical_analyzer.c)", "01_Lexical_Analyzer_in_C/lexical_analyzer.c")
         ],
-        "io": """Tokens:
+        "io": """Enter the input string:
+int a = 10 + b;
 
-int : Keyword
-main : Identifier
-( : Delimiter
-) : Delimiter
-{ : Delimiter
 int : Keyword
 a : Identifier
 = : Operator
 10 : Constant
-, : Delimiter
-b : Identifier
-= : Operator
-20 : Constant
-; : Delimiter
-int : Keyword
-c : Identifier
-= : Operator
-a : Identifier
 + : Operator
 b : Identifier
-; : Delimiter
-return : Keyword
-c : Identifier
-; : Delimiter
-} : Delimiter"""
+; : Delimiter"""
     },
     {
         "num": 2,
@@ -298,7 +282,8 @@ Continue(0/1)? 0"""
             ("Source Code (recursive.c)", "13_Recursive_Descent_Parser/recursive.c")
         ],
         "io": """Enter an arithmetic expression: a+b
-Accepted"""
+Accepted""",
+        "clearpage_output": True
     },
     {
         "num": 14,
@@ -373,7 +358,8 @@ The optimized code is:
 
 + 3 t1 t2
 
-* t2 3 t3"""
+* t2 3 t3""",
+        "clearpage_output": True
     },
     {
         "num": 16,
@@ -388,13 +374,9 @@ Operator    op1    op2    result
 ---------------------------------
 *           b      c      t1
 
--           b      d      t2
+-           t1     d      t2
 
-+           a      t2     t3
-
-            a      t3     t4
-
-            a      t4     t5""",
++           a      t2     t3""",
         "io_latex": r"""\begin{lstlisting}
 Enter the infix expression: a+(b*c)-d
 Postfix expression: abc*d-+
@@ -405,10 +387,8 @@ Postfix expression: abc*d-+
 Operator & op1 & op2 & result \\[0.1em]
 \multicolumn{4}{@{}l@{}}{------------------------------------------------------------} \\
 {}* & b & c & t1 \\[0.8em]
--- & b & d & t2 \\[0.8em]
-+ & a & t2 & t3 \\[0.8em]
-& a & t3 & t4 \\[0.8em]
-& a & t4 & t5 \\
+-- & t1 & d & t2 \\[0.8em]
++ & a & t2 & t3 \\
 \end{tabular}}"""
     }
 ]

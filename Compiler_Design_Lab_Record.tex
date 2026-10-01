@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{mathptmx}         % Times New Roman font throughout
-\usepackage[margin=1in]{geometry}
+\usepackage[top=0.75in, bottom=0.75in, left=1in, right=1in]{geometry}
 \usepackage{listings}
 \usepackage{needspace}
 \usepackage{hyperref}
@@ -28,7 +28,8 @@
     showstringspaces=false,
     keepspaces=true,
     columns=fullflexible,
-    tabsize=4
+    tabsize=4,
+    lineskip=-0.8pt
 }
 
 \begin{document}
@@ -47,9 +48,7 @@ int isKeyword(char word[])
         "return", "void"
     };
 
-    int i;
-
-    for (i = 0; i < 10; i++)
+    for (int i = 0; i < 10; i++)
     {
         if (strcmp(word, keywords[i]) == 0)
             return 1;
@@ -60,28 +59,17 @@ int isKeyword(char word[])
 
 int main()
 {
-    FILE *fp;
     char ch;
     char word[30];
     int i = 0;
 
-    fp = fopen("sample_input.c", "r");
+    printf("Enter the input string:\n");
 
-    if (fp == NULL)
+    while ((ch = getchar()) != '\n' && ch != EOF)
     {
-        printf("File not found\n");
-        return 1;
-    }
-
-    printf("Tokens:\n\n");
-
-    while ((ch = fgetc(fp)) != EOF)
-    {
-        /* Identifier, keyword or constant */
         if (isalnum(ch) || ch == '_')
         {
-            word[i] = ch;
-            i++;
+            word[i++] = ch;
         }
         else
         {
@@ -99,14 +87,11 @@ int main()
                 i = 0;
             }
 
-            /* Operators */
             if (ch == '+' || ch == '-' || ch == '*' ||
                 ch == '/' || ch == '%' || ch == '=')
             {
                 printf("%c : Operator\n", ch);
             }
-
-            /* Delimiters */
             else if (ch == ';' || ch == ',' ||
                      ch == '(' || ch == ')' ||
                      ch == '{' || ch == '}')
@@ -116,7 +101,6 @@ int main()
         }
     }
 
-    /* Process last word */
     if (i != 0)
     {
         word[i] = '\0';
@@ -129,8 +113,6 @@ int main()
             printf("%s : Identifier\n", word);
     }
 
-    fclose(fp);
-
     return 0;
 }
 \end{lstlisting}
@@ -139,33 +121,16 @@ int main()
 \vspace{0.6em}
 \noindent\textbf{\underline{Output:}}\par\vspace{0.4em}
 \begin{lstlisting}
-Tokens:
+Enter the input string:
+int a = 10 + b;
 
-int : Keyword
-main : Identifier
-( : Delimiter
-) : Delimiter
-{ : Delimiter
 int : Keyword
 a : Identifier
 = : Operator
 10 : Constant
-, : Delimiter
-b : Identifier
-= : Operator
-20 : Constant
-; : Delimiter
-int : Keyword
-c : Identifier
-= : Operator
-a : Identifier
 + : Operator
 b : Identifier
 ; : Delimiter
-return : Keyword
-c : Identifier
-; : Delimiter
-} : Delimiter
 \end{lstlisting}
 
 \clearpage
@@ -177,12 +142,8 @@ c : Identifier
 %}
 
 %%
-int|float|for|if|else|while { printf("keyword "); }
-[a-zA-Z][a-zA-Z0-9]*        { printf("identifier "); }
-[0-9]+                      { printf("number "); }
-[+\-*/=]                    { printf("operator "); }
-[ \t\n]+                    { /* skip whitespace */ }
-.                           { /* skip other characters */ }
+int|float|for|if|else|while {printf("keyword ");}
+[a-zA-Z][a-zA-Z0-9]* {printf("identifier ");}
 %%
 
 int main() {
@@ -208,7 +169,6 @@ keyword identifier keyword identifier
 \noindent\textbf{\large Program Name:} Display Number of Lines, Words, Spaces, and Characters using LEX\par\vspace{0.6em}
 \noindent\textbf{\large Program:}\par\vspace{0.3em}
 \begin{lstlisting}
-/* Lex Program to count numbers of lines, words, spaces and characters in a given statement */
 %{
 #include <stdio.h>
 int sc = 0, wc = 0, lc = 0, cc = 0;
@@ -1337,71 +1297,45 @@ Continue(0/1)? 0
 #include <string.h>
 #include <ctype.h>
 
-char input[10];
-int i,error;
-void E();
-void T();
-void Eprime();
-void Tprime();
-void F();
-int main()
-{
-i=0;
-error=0;
-printf("Enter an arithmentic expression:");
-gets(input);
-E();
-if(strlen(input)==i&&error==0)
-printf("\nAccepted\n");
-else printf("Rejected\n");
-return 0;
+char input[20];
+int i = 0, error = 0;
+void E(), T(), Eprime(), Tprime(), F();
+
+int main() {
+    printf("Enter an arithmetic expression: ");
+    gets(input);
+    E();
+    if (strlen(input) == i && error == 0)
+        printf("\nAccepted\n");
+    else
+        printf("\nRejected\n");
+    return 0;
 }
 
-void E()
-{
-T();
-Eprime();
+void E() { T(); Eprime(); }
+
+void Eprime() {
+    if (input[i] == '+') { i++; T(); Eprime(); }
 }
 
-void Eprime()
-{
-if(input[i]=='+')
-{
-i++;
-T();
-Eprime();
+void T() { F(); Tprime(); }
+
+void Tprime() {
+    if (input[i] == '*') { i++; Tprime(); }
 }
-}
-void T()
-{
-F();
-Tprime();
-}
-void Tprime()
-{
-if(input[i]=='*')
-{
-i++;
-Tprime();
-}
-}
-void F()
-{
-if(isalnum(input[i]))i++;
-else if(input[i]=='(')
-{
-i++;
-E();
-if(input[i]==')')
-i++;
-else error=1;
-}
-else error=1;
+
+void F() {
+    if (isalnum(input[i]))
+        i++;
+    else if (input[i] == '(') {
+        i++; E();
+        if (input[i] == ')') i++;
+        else error = 1;
+    } else error = 1;
 }
 \end{lstlisting}
 
-\needspace{4\baselineskip}
-\vspace{0.6em}
+\clearpage
 \noindent\textbf{\underline{Output:}}\par\vspace{0.4em}
 \begin{lstlisting}
 Enter an arithmetic expression: a+b
@@ -1619,8 +1553,7 @@ void change(int p,char *res)
 }
 \end{lstlisting}
 
-\needspace{8\baselineskip}
-\vspace{0.6em}
+\clearpage
 \noindent\textbf{\underline{Output:}}\par\vspace{0.4em}
 \begin{lstlisting}
 Enter the number of expressions: 3
@@ -1644,114 +1577,137 @@ The optimized code is:
 \noindent\textbf{\large Program Name:} Intermediate Code Generation (Three-Address Code)\par\vspace{0.6em}
 \noindent\textbf{\large Program:}\par\vspace{0.3em}
 \begin{lstlisting}
-#include<stdio.h>
-#include<string.h>
-#include<ctype.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
 int isp(char item);
 void output(char item);
 void push(char item);
 char pop(void);
 void quad(void);
+
 char exp[20];
 char res[20];
-char a[20],opr[20],opd1[20],opd2[20],result[20];
-int st[20],value[20];
-int top=0,z=0,i=0,op1,op2,k,j,p,l;
-char x,item;
+char a[20];
+int top = 0, z = 0, i = 0, l;
+char x, item;
 
 void main()
 {
-printf("Enter the infix expression: ");
-gets(exp);
-l=strlen(exp);
-push('#');
-while((item=exp[i])!='\0')
-{
-if(isalpha(exp[i]))
-output(item);
-else if(item=='+'||item=='-'||item=='*'||item=='/'||item=='^')
-push(item);
-else if(item=='(')
-push(item);
-else if(item==')')
-{
-while((x=pop())!='(')
-output(x);
-}
-else if(isp(x=pop())<isp(item))
-{
-push(x);
-push(item);
-}
-else
-{
-output(x);
-push(item);
-}
-i++;
-}
-while((x=pop())!='#')
-output(x);
-printf("Postfix expression: ");
-puts(res);
-quad();
+    printf("Enter the infix expression: ");
+    gets(exp);
+    l = strlen(exp);
+    push('#');
+
+    while ((item = exp[i]) != '\0')
+    {
+        if (isalpha(exp[i]))
+            output(item);
+        else if (item == '+' || item == '-' || item == '*' || item == '/' || item == '^')
+            push(item);
+        else if (item == '(')
+            push(item);
+        else if (item == ')')
+        {
+            while ((x = pop()) != '(')
+                output(x);
+        }
+        else if (isp(x = pop()) < isp(item))
+        {
+            push(x);
+            push(item);
+        }
+        else
+        {
+            output(x);
+            push(item);
+        }
+        i++;
+    }
+
+    while ((x = pop()) != '#')
+        output(x);
+
+    printf("Postfix expression: ");
+    puts(res);
+    quad();
 }
 
 int isp(char item)
 {
-if((item=='+')||(item=='-'))
-return(1);
-else if((item=='*')||(item=='/'))
-return(2);
-else if((item=='^'))
-return(3);
-else
-return(0);
+    if ((item == '+') || (item == '-'))
+        return 1;
+    else if ((item == '*') || (item == '/'))
+        return 2;
+    else if ((item == '^'))
+        return 3;
+    else
+        return 0;
 }
+
 void output(char item)
 {
-res[z++]=item;
+    res[z++] = item;
 }
+
 void push(char item)
 {
-a[++top]=item; }
+    a[++top] = item;
+}
+
 char pop(void)
 {
-item=a[top--];
-return(item); }
+    item = a[top--];
+    return item;
+}
+
 void quad()
 {
-int i,x=0;
-char m,n,p,temp,str1[5],str2[5];
-printf("\noperator\top1\top2\tresult\n");
-printf("----------------------------");
-for(i=0;i<l;i++)
-{
-if(isalnum(res[i]))
-{
-push(res[i]); }
-else
-{
-if(isalpha(m=pop()))
-{
-str1[0]=m;
-str1[1]='\0'; }
-else
-{
-str1[0]='t';
-str1[1]=m;
-str1[2]='\0'; }
-if(isalpha(n=pop()))
-{
-str2[0]=n;
-str2[1]='\0'; }
-else
-{ str2[2]='\0'; }
-x++;
-printf("\n%c\t\t%s\t%s\tt%d\n",res[i],str2,str1,x);
-temp=x+'0';
-push(temp);
-} } }
+    int i, x = 0;
+    char m, n, temp, str1[5], str2[5];
+    printf("\nOperator\top1\top2\tresult\n");
+    printf("---------------------------------");
+
+    for (i = 0; i < z; i++)
+    {
+        if (isalnum(res[i]))
+        {
+            push(res[i]);
+        }
+        else
+        {
+            if (isalpha(m = pop()))
+            {
+                str1[0] = m;
+                str1[1] = '\0';
+            }
+            else
+            {
+                str1[0] = 't';
+                str1[1] = m;
+                str1[2] = '\0';
+            }
+
+            if (isalpha(n = pop()))
+            {
+                str2[0] = n;
+                str2[1] = '\0';
+            }
+            else
+            {
+                str2[0] = 't';
+                str2[1] = n;
+                str2[2] = '\0';
+            }
+
+            x++;
+            printf("\n%-8c\t%-7s\t%-7s\tt%d\n", res[i], str2, str1, x);
+            temp = x + '0';
+            push(temp);
+        }
+    }
+}
 \end{lstlisting}
 
 \needspace{8\baselineskip}
@@ -1767,10 +1723,8 @@ Postfix expression: abc*d-+
 Operator & op1 & op2 & result \\[0.1em]
 \multicolumn{4}{@{}l@{}}{------------------------------------------------------------} \\
 {}* & b & c & t1 \\[0.8em]
--- & b & d & t2 \\[0.8em]
-+ & a & t2 & t3 \\[0.8em]
-& a & t3 & t4 \\[0.8em]
-& a & t4 & t5 \\
+-- & t1 & d & t2 \\[0.8em]
++ & a & t2 & t3 \\
 \end{tabular}}
 
 \end{document}

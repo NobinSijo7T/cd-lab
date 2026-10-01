@@ -1,4 +1,3 @@
-/* Lex Program to count numbers of lines, words, spaces and characters in a given statement */
 %{
 #include <stdio.h>
 int sc = 0, wc = 0, lc = 0, cc = 0;
