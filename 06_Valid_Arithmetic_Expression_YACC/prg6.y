@@ -22,7 +22,7 @@ E:E'+'E {$$=$1+$3;}
 
 void main()
 {
-printf("\nEnter any arithmetic expression which can have operations Addition, Subtraction, multiplication, Division, Modulus and round brackets:\n");
+printf("Enter an arithmetic expression: ");
 
 yyparse();
 if(flag==0)

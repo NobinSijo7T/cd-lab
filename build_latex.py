@@ -76,8 +76,8 @@ The number of characters are=40"""
         "programs": [
             ("LEX Specification (lines.l)", "03_Count_Lines_Words_Characters/lines.l")
         ],
-        "io": """hello abc world
-hello ABC world"""
+        "io": """Input: hello abc world
+Output: hello ABC world"""
     },
     {
         "num": 4,
@@ -85,8 +85,8 @@ hello ABC world"""
         "programs": [
             ("LEX Specification (sub.l)", "04_Replace_Substring_abc_to_ABC/sub.l")
         ],
-        "io": """welcome to abc lab
-welcome to ABC lab"""
+        "io": """Input: welcome to abc lab
+Output: welcome to ABC lab"""
     },
     {
         "num": 5,
@@ -105,8 +105,7 @@ vovel: 5"""
             ("Lexer Specification (prg6.l)", "06_Valid_Arithmetic_Expression_YACC/prg6.l"),
             ("YACC Parser Specification (prg6.y)", "06_Valid_Arithmetic_Expression_YACC/prg6.y")
         ],
-        "io": """Enter any arithmetic expression which can have operations Addition, Subtraction, multiplication, Division, Modulus and round brackets:
-(5+3)*2-4/2
+        "io": """Enter an arithmetic expression: (5+3)*2-4/2
 
 Result=14
 
@@ -119,7 +118,7 @@ Entered Arithmetic expression is valid"""
             ("Lexer Specification (prg5.l)", "07_Valid_Identifier_YACC/prg5.l"),
             ("YACC Parser Specification (prg5.y)", "07_Valid_Identifier_YACC/prg5.y")
         ],
-        "io": """enter identifier: variable_1
+        "io": """enter identifier: abc
 Valid Identifier."""
     },
     {
@@ -303,7 +302,34 @@ E*a             Shift a
 E*E             Reduce E-> a
 E               Reduce E-> E*E
 
-Accepted"""
+Accepted""",
+        "io_latex": r"""\begin{lstlisting}
+Enter the number of production rules: 3
+Enter the number of production rules(in the form of left->right):
+E->E+E
+E->E*E
+E->a
+
+Enter the input string: a+a*a
+\end{lstlisting}
+\vspace{0.2em}
+{\setlength{\tabcolsep}{16pt}
+\noindent\begin{tabular}{@{}lll@{}}
+a & +a*a & Shift a \\
+E & +a*a & Reduce E-> a \\
+E+ & a*a & Shift + \\
+E+a & *a & Shift a \\
+E+E & *a & Reduce E-> a \\
+E & *a & Reduce E-> E+E \\
+E* & a & Shift * \\
+E*a & & Shift a \\
+E*E & & Reduce E-> a \\
+E & & Reduce E-> E*E \\
+\end{tabular}}
+\vspace{0.4em}
+\begin{lstlisting}
+Accepted
+\end{lstlisting}"""
     },
     {
         "num": 15,
@@ -346,7 +372,22 @@ Operator    op1    op2    result
 
             a      t3     t4
 
-            a      t4     t5"""
+            a      t4     t5""",
+        "io_latex": r"""\begin{lstlisting}
+Enter the infix expression: a+(b*c)-d
+Postfix expression: abc*d-+
+\end{lstlisting}
+\vspace{0.3em}
+{\setlength{\tabcolsep}{22pt}
+\noindent\begin{tabular}{@{}llll@{}}
+Operator & op1 & op2 & result \\[0.1em]
+\multicolumn{4}{@{}l@{}}{------------------------------------------------------------} \\
+{}* & b & c & t1 \\[0.8em]
+-- & b & d & t2 \\[0.8em]
++ & a & t2 & t3 \\[0.8em]
+& a & t3 & t4 \\[0.8em]
+& a & t4 & t5 \\
+\end{tabular}}"""
     }
 ]
 
@@ -373,12 +414,17 @@ for exp in experiments:
             tex_content.append(code.rstrip())
             tex_content.append("\n\\end{lstlisting}\n\n")
     
-    tex_content.append("\\needspace{12\\baselineskip}\n")
+    io_lines = exp["io"].strip().count('\n') + 1
+    needlines = min(8, max(4, io_lines + 2))
+    tex_content.append(f"\\needspace{{{needlines}\\baselineskip}}\n")
     tex_content.append("\\vspace{0.6em}\n")
     tex_content.append("\\noindent\\textbf{\\underline{Output:}}\\par\\vspace{0.4em}\n")
-    tex_content.append("\\begin{lstlisting}\n")
-    tex_content.append(exp["io"].strip())
-    tex_content.append("\n\\end{lstlisting}\n\n")
+    if "io_latex" in exp:
+        tex_content.append(exp["io_latex"].strip() + "\n\n")
+    else:
+        tex_content.append("\\begin{lstlisting}\n")
+        tex_content.append(exp["io"].strip())
+        tex_content.append("\n\\end{lstlisting}\n\n")
 
 tex_content.append(r"\end{document}" + "\n")
 
@@ -387,3 +433,7 @@ with open("Compiler_Design_Lab_Record.tex", "w", encoding="utf-8") as f:
     f.write(full_tex)
 
 print("Generated Compiler_Design_Lab_Record.tex successfully!")
+
+print("Compiling LaTeX to PDF...")
+subprocess.run(["pdflatex", "-interaction=nonstopmode", "Compiler_Design_Lab_Record.tex"], check=True)
+print("Compiler_Design_Lab_Record.pdf generated successfully!")
