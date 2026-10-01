@@ -396,7 +396,6 @@ for exp in experiments:
     name = exp["name"]
     if num > 1:
         tex_content.append("\\clearpage\n")
-    tex_content.append(f"\\noindent\\textbf{{\\large Experiment Number: {num}}}\\par\\vspace{{0.3em}}\n")
     tex_content.append(f"\\noindent\\textbf{{\\large Program Name:}} {name}\\par\\vspace{{0.6em}}\n")
     tex_content.append(f"\\noindent\\textbf{{\\large Program:}}\\par\\vspace{{0.3em}}\n")
     
