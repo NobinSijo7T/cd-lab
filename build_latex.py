@@ -45,6 +45,283 @@ def read_file(path):
     with open(path, 'r', encoding='utf-8', errors='replace') as f:
         return f.read()
 
+# Formatted overrides for LaTeX PDF output (ensures proper tabbing to identify loops without touching source files)
+FORMATTED_CODE_FOR_LATEX = {
+    "12_First_and_Follow/FF.c": r"""#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+int n, m = 0, p, i = 0, j = 0;
+char a[10][10], f[10];
+void follow(char c);
+void first(char c);
+
+int main()
+{
+    int i, z;
+    char c, ch;
+    printf("Enter the no of productions:\n");
+    scanf("%d", &n);
+    printf("Enter the  productions:\n");
+    for (i = 0; i < n; i++)
+        scanf("%s%c", a[i], &ch);
+    do
+    {
+        m = 0;
+        printf("Enter the elements whose first and follow is to be found:");
+        scanf("%c", &c);
+        first(c);
+        printf("First(%c)={", c);
+        for (i = 0; i < m; i++)
+            printf("%c", f[i]);
+        printf("}\n");
+        strcpy(f, " ");
+        m = 0;
+        follow(c);
+        printf("Follow(%c)={", c);
+        for (i = 0; i < m; i++)
+            printf("%c", f[i]);
+        printf("}\n");
+        printf("Continue(0/1)?");
+        scanf("%d%c", &z, &ch);
+    } while (z == 1);
+    return (0);
+}
+
+void first(char c)
+{
+    int k;
+    if (!isupper(c))
+        f[m++] = c;
+    for (k = 0; k < n; k++)
+    {
+        if (a[k][0] == c)
+        {
+            if (a[k][2] == '#')
+                f[m++] = '#';
+            else if (islower(a[k][2]))
+                f[m++] = a[k][2];
+            else
+                first(a[k][2]);
+        }
+    }
+}
+
+void follow(char c)
+{
+    if (a[0][0] == c)
+        f[m++] = '$';
+    for (i = 0; i < n; i++)
+    {
+        for (j = 2; j < strlen(a[i]); j++)
+        {
+            if (a[i][j] == c)
+            {
+                if (a[i][j + 1] != '\0')
+                    first(a[i][j + 1]);
+                if (a[i][j + 1] == '\0' && c != a[i][0])
+                    follow(a[i][0]);
+            }
+        }
+    }
+}""",
+
+    "14_Shift_Reduce_Parser/shift.c": r"""#include <stdio.h>
+#include <string.h>
+
+struct ProductionRule
+{
+    char left[10];
+    char right[10];
+};
+
+int main()
+{
+    char input[20], stack[50], temp[50], ch[2], *token1, *token2, *substring;
+    int i, j, stack_length, substring_length, stack_top, rule_count = 0;
+    struct ProductionRule rules[10];
+
+    stack[0] = '\0';
+
+    printf("\nEnter the number of production rules:");
+    scanf("%d", &rule_count);
+
+    printf("\nEnter the number of production rules(in the form of left->right):\n");
+    for (i = 0; i < rule_count; i++)
+    {
+        scanf("%s", temp);
+        token1 = strtok(temp, "->");
+        token2 = strtok(NULL, "->");
+        strcpy(rules[i].left, token1);
+        strcpy(rules[i].right, token2);
+    }
+
+    printf("\nEnter the input string:");
+    scanf("%s", input);
+
+    i = 0;
+    while (1)
+    {
+        if (i < strlen(input))
+        {
+            ch[0] = input[i];
+            ch[1] = '\0';
+            i++;
+            strcat(stack, ch);
+            printf("%s\t", stack);
+            for (int k = i; k < strlen(input); k++)
+            {
+                printf("%c", input[k]);
+            }
+            printf("\tShift %s\n", ch);
+        }
+
+        for (j = 0; j < rule_count; j++)
+        {
+            substring = strstr(stack, rules[j].right);
+            if (substring != NULL)
+            {
+                stack_length = strlen(stack);
+                substring_length = strlen(substring);
+                stack_top = stack_length - substring_length;
+                stack[stack_top] = '\0';
+                strcat(stack, rules[j].left);
+                printf("%s\t", stack);
+                for (int k = i; k < strlen(input); k++)
+                {
+                    printf("%c", input[k]);
+                }
+                printf("\tReduce %s-> %s\n", rules[j].left, rules[j].right);
+                j = -1;
+            }
+        }
+
+        if (strcmp(stack, rules[0].left) == 0 && i == strlen(input))
+        {
+            printf("\nAccepted\n");
+            break;
+        }
+
+        if (i == strlen(input))
+        {
+            printf("\nNot Accepted\n");
+            break;
+        }
+    }
+
+    return 0;
+}""",
+
+    "04_Replace_Substring_abc_to_ABC/sub.l": r"""%{
+#include <stdio.h>
+%}
+
+%%
+"abc" {printf("ABC");}
+. {putchar(yytext[0]);}
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}""",
+
+    "09_Epsilon_Closure/epsilon.c": r"""#include <stdio.h>
+#include <string.h>
+
+char states[20][20];
+char result[20][20];
+char copy[20];
+
+int is_present(char state[20], int n)
+{
+    int i;
+    for (i = 0; i < n; i++)
+    {
+        if (strcmp(result[i], state) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+void epsilon_closure(char start[20], FILE *INPUT)
+{
+    char current[20];
+    char state1[20], input[20], state2[20];
+    int count = 0;
+    int i;
+
+    strcpy(copy, start);
+    strcpy(result[count++], start);
+    i = 0;
+    while (i < count)
+    {
+        strcpy(current, result[i]);
+        rewind(INPUT);
+        while (fscanf(INPUT, "%s %s %s", state1, input, state2) == 3)
+        {
+            if (strcmp(current, state1) == 0 && strcmp(input, "e") == 0)
+            {
+                if (!is_present(state2, count))
+                {
+                    strcpy(result[count++], state2);
+                }
+            }
+        }
+        i++;
+    }
+
+    printf("\nEpsilon closure of %s = {", copy);
+    for (i = 0; i < count; i++)
+    {
+        printf("%s", result[i]);
+        if (i < count - 1)
+            printf(", ");
+    }
+    printf("}\n");
+}
+
+int main()
+{
+    FILE *INPUT;
+    int n, i;
+
+    INPUT = fopen("input.dat", "r");
+    if (INPUT == NULL)
+    {
+        printf("Unable to open input.dat\n");
+        return 1;
+    }
+
+    printf("Enter the no of states: ");
+    scanf("%d", &n);
+    printf("Enter the states: ");
+    for (i = 0; i < n; i++)
+    {
+        scanf("%s", states[i]);
+    }
+    for (i = 0; i < n; i++)
+    {
+        epsilon_closure(states[i], INPUT);
+    }
+    fclose(INPUT);
+    return 0;
+}"""
+}
+
+def get_program_code_for_latex(path):
+    normalized = path.replace("\\", "/")
+    if normalized in FORMATTED_CODE_FOR_LATEX:
+        return FORMATTED_CODE_FOR_LATEX[normalized]
+    return read_file(path)
+
+
 # Definition of all 16 experiments
 experiments = [
     {
@@ -53,16 +330,32 @@ experiments = [
         "programs": [
             ("C Program (lexical_analyzer.c)", "01_Lexical_Analyzer_in_C/lexical_analyzer.c")
         ],
-        "io": """Enter the input string:
-int a = 10 + b;
-
-int : Keyword
-a : Identifier
-= : Operator
-10 : Constant
-+ : Operator
-b : Identifier
-; : Delimiter"""
+        "input_files": [
+            ("input.dat", "01_Lexical_Analyzer_in_C/input.dat")
+        ],
+        "clearpage_output": True,
+        "io": """int is keyword
+= is special character
+a is identifier
+; is special character
+10 is constant
+float is keyword
+= is special character
+b is identifier
++ is special character
+a is identifier
+; is special character
+20 is constant
+( is special character
+if is keyword
+b is identifier
+) is special character
+30 is constant
+{ is special character
+return is keyword
+; is special character
+b is identifier
+} is special character"""
     },
     {
         "num": 2,
@@ -150,6 +443,9 @@ Entered arithmetic expression is Valid"""
         "name": "Epsilon Closure of States in NFA",
         "programs": [
             ("Source Code (epsilon.c)", "09_Epsilon_Closure/epsilon.c")
+        ],
+        "input_files": [
+            ("input.dat", "09_Epsilon_Closure/input.dat")
         ],
         "io": """Enter the no of states: 3
 Enter the states: 0 1 2
@@ -273,7 +569,8 @@ Continue(0/1)? 1
 Enter the elements whose first and follow is to be found: A
 First(A)={a#}
 Follow(A)={b}
-Continue(0/1)? 0"""
+Continue(0/1)? 0""",
+        "clearpage_output": True
     },
     {
         "num": 13,
@@ -403,13 +700,13 @@ for exp in experiments:
     
     if len(exp["programs"]) == 1:
         title, filepath = exp["programs"][0]
-        code = read_file(filepath)
+        code = get_program_code_for_latex(filepath)
         tex_content.append("\\begin{lstlisting}\n")
         tex_content.append(code.rstrip())
         tex_content.append("\n\\end{lstlisting}\n\n")
     else:
         for title, filepath in exp["programs"]:
-            code = read_file(filepath)
+            code = get_program_code_for_latex(filepath)
             tex_content.append(f"\\noindent\\textbf{{{title}:}}\\par\\vspace{{0.2em}}\n")
             tex_content.append("\\begin{lstlisting}\n")
             tex_content.append(code.rstrip())
@@ -423,6 +720,14 @@ for exp in experiments:
         tex_content.append(f"\\needspace{{{needlines}\\baselineskip}}\n")
         tex_content.append("\\vspace{0.6em}\n")
     tex_content.append("\\noindent\\textbf{\\underline{Output:}}\\par\\vspace{0.4em}\n")
+    if "input_files" in exp:
+        for title, filepath in exp["input_files"]:
+            content = read_file(filepath)
+            tex_content.append(f"\\noindent\\textbf{{{title}:}}\\par\\vspace{{0.2em}}\n")
+            tex_content.append("\\begin{lstlisting}\n")
+            tex_content.append(content.rstrip())
+            tex_content.append("\n\\end{lstlisting}\n\\vspace{0.4em}\n")
+        tex_content.append("\\noindent\\textbf{Output:}\\par\\vspace{0.2em}\n")
     if "io_latex" in exp:
         tex_content.append(exp["io_latex"].strip() + "\n\n")
     else:
